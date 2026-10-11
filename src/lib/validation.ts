@@ -9,7 +9,8 @@ export const emailField = z
   .toLowerCase()
   .pipe(z.email({ error: t.validation.email }));
 
-export const passwordField = z.string({ error: t.validation.required }).min(8, { error: t.validation.passwordMin });
+/** Any non-empty password is accepted (A23). */
+export const passwordField = z.string({ error: t.validation.required }).min(1, { error: t.validation.required });
 
 export const nameField = z.string({ error: t.validation.required }).trim().min(2, { error: t.validation.required });
 

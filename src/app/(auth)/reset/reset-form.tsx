@@ -18,19 +18,11 @@ export function ResetForm({ token }: { token: string }) {
       <p className="text-sm text-muted-foreground">{t.auth.reset.description}</p>
       <div className="flex flex-col gap-2">
         <Label htmlFor="password">{t.auth.password}</Label>
-        <Input id="password" name="password" type="password" autoComplete="new-password" minLength={8} required />
-        <p className="text-xs text-muted-foreground">{t.auth.signup.passwordHint}</p>
+        <Input id="password" name="password" type="password" autoComplete="new-password" required />
       </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="passwordConfirm">{t.auth.passwordConfirm}</Label>
-        <Input
-          id="passwordConfirm"
-          name="passwordConfirm"
-          type="password"
-          autoComplete="new-password"
-          minLength={8}
-          required
-        />
+        <Input id="passwordConfirm" name="passwordConfirm" type="password" autoComplete="new-password" required />
       </div>
       {state.error ? (
         <Alert variant="destructive">
