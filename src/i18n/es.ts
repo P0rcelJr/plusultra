@@ -50,7 +50,6 @@ export const es = {
     signup: {
       title: "Crear cuenta",
       description: "Registrate y te enviamos un email para verificar tu cuenta.",
-      passwordHint: "Mínimo 8 caracteres.",
       submit: "Registrarme",
       submitting: "Creando cuenta…",
       doneTitle: "Revisá tu email",
@@ -409,7 +408,6 @@ export const es = {
   validation: {
     required: "Completá este campo.",
     email: "Ingresá un email válido.",
-    passwordMin: "La contraseña debe tener al menos 8 caracteres.",
     date: "Ingresá una fecha válida.",
     invalid: "Revisá los datos ingresados.",
     price: "Ingresá un precio en pesos, sin decimales.",
