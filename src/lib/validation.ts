@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { fromDateKey } from "@/domain/time";
-import { t } from "@/i18n";
+import { fill, t } from "@/i18n";
 
 /** Shared zod pieces so every form validates the same way and reports Spanish messages. */
 export const emailField = z
@@ -12,6 +12,12 @@ export const emailField = z
 export const passwordField = z.string({ error: t.validation.required }).min(8, { error: t.validation.passwordMin });
 
 export const nameField = z.string({ error: t.validation.required }).trim().min(2, { error: t.validation.required });
+
+/** Whole number within inclusive bounds; the error names the range. */
+export function boundedInt({ min, max }: { min: number; max: number }) {
+  const error = fill(t.validation.intRange, { min, max });
+  return z.coerce.number({ error }).int({ error }).min(min, { error }).max(max, { error });
+}
 
 export const optionalText = z
   .string()

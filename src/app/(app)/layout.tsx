@@ -11,6 +11,7 @@ const NAV = {
     { href: "/admin/approvals", label: t.nav.approvals },
     { href: "/admin/members", label: t.nav.members },
     { href: "/admin/plans", label: t.nav.plans },
+    { href: "/admin/classes", label: t.nav.classes },
     { href: "/admin/settings", label: t.nav.settings },
   ],
   COACH: [{ href: "/coach", label: t.nav.home }],
