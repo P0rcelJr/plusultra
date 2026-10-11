@@ -29,6 +29,12 @@ enum SessionStatus {
   CANCELLED
 }
 
+enum BookingStatus {
+  BOOKED
+  LATE_CANCELLED
+  CANCELLED
+}
+
 model User {
   id              String     @id @default(cuid())
   email           String     @unique
@@ -47,6 +53,9 @@ model User {
 
   coachedTemplates ScheduleTemplate[]
   coachedSessions  ClassSession[]
+
+  bookings     Booking[] @relation("BookingMember")
+  bookingsMade Booking[] @relation("BookingBookedBy")
 
   @@map("users")
 }
@@ -199,8 +208,31 @@ model ClassSession {
   template  ScheduleTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
   classType ClassType         @relation(fields: [classTypeId], references: [id])
   coach     User              @relation(fields: [coachId], references: [id])
+  bookings  Booking[]
 
   @@unique([templateId, startsAt])
   @@index([startsAt])
   @@map("sessions")
+}
+
+/// A member's seat in a session (decision 9). Only BOOKED rows take a seat; LATE_CANCELLED still
+/// counts against the weekly quota. `bookedById` is the member or the staff user who booked.
+/// One BOOKED row per member and session is enforced by `bookSession` in src/lib/booking.ts, which
+/// locks the session row before checking.
+model Booking {
+  id          String        @id @default(cuid())
+  sessionId   String        @map("session_id")
+  memberId    String        @map("member_id")
+  status      BookingStatus @default(BOOKED)
+  bookedById  String        @map("booked_by")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  cancelledAt DateTime?     @map("cancelled_at")
+
+  session  ClassSession @relation(fields: [sessionId], references: [id])
+  member   User         @relation("BookingMember", fields: [memberId], references: [id], onDelete: Cascade)
+  bookedBy User         @relation("BookingBookedBy", fields: [bookedById], references: [id])
+
+  @@index([sessionId, status])
+  @@index([memberId, status])
+  @@map("bookings")
 }

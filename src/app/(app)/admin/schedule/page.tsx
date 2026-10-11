@@ -28,7 +28,11 @@ export default async function SchedulePage({ searchParams }: PageProps<"/admin/s
 
   const sessions = await db.classSession.findMany({
     where: { startsAt: { gte: bounds.start, lt: bounds.end } },
-    include: { classType: { select: { name: true } }, coach: { select: { name: true } } },
+    include: {
+      classType: { select: { name: true } },
+      coach: { select: { name: true } },
+      _count: { select: { bookings: { where: { status: "BOOKED" } } } },
+    },
     orderBy: { startsAt: "asc" },
   });
   const todayKey = dateKeyFor(new Date());
@@ -92,8 +96,7 @@ export default async function SchedulePage({ searchParams }: PageProps<"/admin/s
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="font-medium">{formatTime(session.startsAt)}</span>
                       <span className="text-xs text-muted-foreground" title={t.schedule.bookedLabel}>
-                        {/* Bookings arrive with the booking slice; until then every session is empty. */}
-                        {fill(t.schedule.booked, { booked: 0, capacity: session.capacity })}
+                        {fill(t.schedule.booked, { booked: session._count.bookings, capacity: session.capacity })}
                       </span>
                     </div>
                     <span className={session.status === "CANCELLED" ? "line-through" : ""}>
