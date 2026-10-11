@@ -12,7 +12,8 @@ describe("parseParq", () => {
     expect(parseParq(null)).toBeNull();
     expect(parseParq({})).toBeNull();
     expect(parseParq({ answers: { ...allNo, heartCondition: "no" } })).toBeNull();
-    const { otherReason: _omitted, ...incomplete } = allNo;
+    const incomplete: Partial<ParqAnswers["answers"]> = { ...allNo };
+    delete incomplete.otherReason;
     expect(parseParq({ answers: incomplete })).toBeNull();
   });
 });

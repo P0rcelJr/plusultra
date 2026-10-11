@@ -19,6 +19,8 @@ pnpm dev                      # http://localhost:3000
 
 Other scripts: `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm db:studio`.
 
+Transactional email goes through Resend when `RESEND_API_KEY` is set; otherwise every email (verification, password links, account approved) is printed to the `pnpm dev` console with its link, so all flows work offline. Optional: `APP_URL` for the base of email links (defaults to `AUTH_URL`, then `http://localhost:3000`) and `EMAIL_FROM` for the sender. Uploaded profile photos land in `UPLOADS_DIR/photos`.
+
 ## Production (single VPS)
 
 ```bash

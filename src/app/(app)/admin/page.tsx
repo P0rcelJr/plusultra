@@ -6,6 +6,6 @@ import { requireRole } from "@/lib/session";
 export const metadata: Metadata = { title: t.home.admin };
 
 export default async function AdminHomePage() {
-  const session = await requireRole("ADMIN");
-  return <SkeletonNotice title={t.home.admin} name={session.user.name ?? ""} />;
+  const user = await requireRole("ADMIN");
+  return <SkeletonNotice title={t.home.admin} name={user.name} />;
 }

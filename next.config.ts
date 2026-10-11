@@ -13,6 +13,13 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  experimental: {
+    serverActions: {
+      // Profile photos are capped at 5 MB (decision A6) and travel inside the intake form's
+      // multipart body; the extra room covers the other fields and multipart overhead.
+      bodySizeLimit: "6mb",
+    },
+  },
 };
 
 export default nextConfig;
