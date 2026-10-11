@@ -26,7 +26,7 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
           <CardTitle>{t.plans.title}</CardTitle>
           <CardDescription>{t.plans.description}</CardDescription>
           <div className="mt-2">
-            <Button render={<Link href="/admin/plans/new" />} size="sm">
+            <Button nativeButton={false} render={<Link href="/admin/plans/new" />} size="sm">
               {t.plans.new}
             </Button>
           </div>
@@ -64,7 +64,7 @@ export default async function PlansPage({ searchParams }: PageProps<"/admin/plan
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button render={<Link href={`/admin/plans/${plan.id}`} />} variant="outline" size="sm">
+                        <Button nativeButton={false} render={<Link href={`/admin/plans/${plan.id}`} />} variant="outline" size="sm">
                           {t.common.edit}
                         </Button>
                         <form action={setPlanActive}>
