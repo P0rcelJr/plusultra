@@ -42,20 +42,19 @@ export function TemplateForm({
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <Label htmlFor="classTypeId">{t.templates.classType}</Label>
-        <NativeSelect className="w-full">
-          <select
-            id="classTypeId"
-            name="classTypeId"
-            defaultValue={first?.id}
-            onChange={(event) => onClassTypeChange(event.target.value)}
-            required
-          >
-            {classTypes.map((classType) => (
-              <NativeSelectOption key={classType.id} value={classType.id}>
-                {classType.name}
-              </NativeSelectOption>
-            ))}
-          </select>
+        <NativeSelect
+          className="w-full"
+          id="classTypeId"
+          name="classTypeId"
+          defaultValue={first?.id}
+          onChange={(event) => onClassTypeChange(event.target.value)}
+          required
+        >
+          {classTypes.map((classType) => (
+            <NativeSelectOption key={classType.id} value={classType.id}>
+              {classType.name}
+            </NativeSelectOption>
+          ))}
         </NativeSelect>
       </div>
       <fieldset className="flex flex-col gap-2">
@@ -113,14 +112,12 @@ export function TemplateForm({
       <p className="text-xs text-muted-foreground">{t.templates.prefillHint}</p>
       <div className="flex flex-col gap-2">
         <Label htmlFor="coachId">{t.templates.coach}</Label>
-        <NativeSelect className="w-full">
-          <select id="coachId" name="coachId" defaultValue={coaches[0]?.id} required>
-            {coaches.map((coach) => (
-              <NativeSelectOption key={coach.id} value={coach.id}>
-                {coach.name}
-              </NativeSelectOption>
-            ))}
-          </select>
+        <NativeSelect className="w-full" id="coachId" name="coachId" defaultValue={coaches[0]?.id} required>
+          {coaches.map((coach) => (
+            <NativeSelectOption key={coach.id} value={coach.id}>
+              {coach.name}
+            </NativeSelectOption>
+          ))}
         </NativeSelect>
       </div>
       {state.error ? (

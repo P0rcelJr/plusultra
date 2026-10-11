@@ -86,14 +86,18 @@ export default async function ApprovalsPage({ searchParams }: PageProps<"/admin/
                 <input type="hidden" name="userId" value={user.id} />
                 <div className="flex flex-col gap-2">
                   <Label htmlFor={`plan-${user.id}`}>{t.approvals.plan}</Label>
-                  <NativeSelect className="w-full">
-                    <select id={`plan-${user.id}`} name="planId" required disabled={plans.length === 0}>
-                      {plans.map((plan) => (
-                        <NativeSelectOption key={plan.id} value={plan.id}>
-                          {plan.name} · {formatMoney(plan.monthlyPrice)}
-                        </NativeSelectOption>
-                      ))}
-                    </select>
+                  <NativeSelect
+                    className="w-full"
+                    id={`plan-${user.id}`}
+                    name="planId"
+                    required
+                    disabled={plans.length === 0}
+                  >
+                    {plans.map((plan) => (
+                      <NativeSelectOption key={plan.id} value={plan.id}>
+                        {plan.name} · {formatMoney(plan.monthlyPrice)}
+                      </NativeSelectOption>
+                    ))}
                   </NativeSelect>
                 </div>
                 <div className="flex flex-col gap-2">

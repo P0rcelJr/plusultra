@@ -38,15 +38,13 @@ export function NewMemberForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor="planId">{t.members.plan}</Label>
-          <NativeSelect className="w-full">
-            <select id="planId" name="planId" defaultValue="">
-              <NativeSelectOption value="">{t.members.noPlanOption}</NativeSelectOption>
-              {plans.map((plan) => (
-                <NativeSelectOption key={plan.id} value={plan.id}>
-                  {plan.name} · {plan.priceLabel}
-                </NativeSelectOption>
-              ))}
-            </select>
+          <NativeSelect className="w-full" id="planId" name="planId" defaultValue="">
+            <NativeSelectOption value="">{t.members.noPlanOption}</NativeSelectOption>
+            {plans.map((plan) => (
+              <NativeSelectOption key={plan.id} value={plan.id}>
+                {plan.name} · {plan.priceLabel}
+              </NativeSelectOption>
+            ))}
           </NativeSelect>
         </div>
         <div className="flex flex-col gap-2">

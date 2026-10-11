@@ -56,36 +56,30 @@ export default async function MembersPage({ searchParams }: PageProps<"/admin/me
 
       <form method="get" className="flex flex-wrap items-end gap-3">
         <Input name="q" defaultValue={q} placeholder={t.members.searchPlaceholder} className="w-56" />
-        <NativeSelect>
-          <select name="status" defaultValue={status} aria-label={t.members.status}>
-            <NativeSelectOption value="">{t.members.status}: {t.common.all}</NativeSelectOption>
-            {STATUSES.map((s) => (
-              <NativeSelectOption key={s} value={s}>
-                {t.status[s]}
-              </NativeSelectOption>
-            ))}
-          </select>
+        <NativeSelect name="status" defaultValue={status} aria-label={t.members.status}>
+          <NativeSelectOption value="">{t.members.status}: {t.common.all}</NativeSelectOption>
+          {STATUSES.map((s) => (
+            <NativeSelectOption key={s} value={s}>
+              {t.status[s]}
+            </NativeSelectOption>
+          ))}
         </NativeSelect>
-        <NativeSelect>
-          <select name="role" defaultValue={role} aria-label={t.members.role}>
-            <NativeSelectOption value="">{t.members.role}: {t.common.all}</NativeSelectOption>
-            {ROLES.map((r) => (
-              <NativeSelectOption key={r} value={r}>
-                {t.roles[r]}
-              </NativeSelectOption>
-            ))}
-          </select>
+        <NativeSelect name="role" defaultValue={role} aria-label={t.members.role}>
+          <NativeSelectOption value="">{t.members.role}: {t.common.all}</NativeSelectOption>
+          {ROLES.map((r) => (
+            <NativeSelectOption key={r} value={r}>
+              {t.roles[r]}
+            </NativeSelectOption>
+          ))}
         </NativeSelect>
-        <NativeSelect>
-          <select name="planId" defaultValue={planId} aria-label={t.members.plan}>
-            <NativeSelectOption value="">{t.members.plan}: {t.common.all}</NativeSelectOption>
-            {plans.map((plan) => (
-              <NativeSelectOption key={plan.id} value={plan.id}>
-                {plan.name}
-                {plan.active ? "" : ` (${t.plans.archived.toLowerCase()})`}
-              </NativeSelectOption>
-            ))}
-          </select>
+        <NativeSelect name="planId" defaultValue={planId} aria-label={t.members.plan}>
+          <NativeSelectOption value="">{t.members.plan}: {t.common.all}</NativeSelectOption>
+          {plans.map((plan) => (
+            <NativeSelectOption key={plan.id} value={plan.id}>
+              {plan.name}
+              {plan.active ? "" : ` (${t.plans.archived.toLowerCase()})`}
+            </NativeSelectOption>
+          ))}
         </NativeSelect>
         <Button type="submit" variant="outline" size="sm">
           {t.members.filter}
