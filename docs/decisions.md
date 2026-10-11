@@ -71,6 +71,13 @@ Stated during planning and not objected to. Reopen any of them by editing this f
 - A9. Health questionnaire is a fixed PAR-Q style yes/no set plus a details field, stored as JSON.
 - A10. No CI until the GitHub repo exists.
 - A11. Cache Components is disabled in `next.config.ts`: every screen is per-user and dynamic.
+- A12. The profile photo is optional at intake; staff can upload or replace it from the member detail page. Reason: a camera hiccup should not block a signup from reaching the approval queue, and staff can add it at the door.
+- A13. Opening a password reset or set-password link proves control of the inbox, so it also marks the email verified. Admin-created members therefore never go through the verification link.
+- A14. Date-only values (date of birth, subscription bounds) are DATE columns handled as 00:00 UTC instants; "today" is the gym-local calendar day (`gymToday` in `src/domain/time.ts`). Assigning a plan from a date closes the row still running on that date and drops rows that had not started yet (`planChangeEffects`); cancelling works the same way with `ends_on`; deactivating an account closes its running subscription as of today.
+- A15. Rejecting a pending signup sets the account INACTIVE and appends the note to the profile's staff notes. No separate rejection table.
+- A16. The member list shows every account, including coaches and admins, because promotions and demotions happen from the detail page. An admin cannot change their own role or deactivate themselves. Coaches have no CRM screens in phase 1; the photo route already admits them for the phase 3 roster.
+- A17. Pages and server actions check role and status against the database row (`currentUser` / `requireRole` in `src/lib/session.ts`); the proxy keeps the cheap JWT check for routing only. A role change still lands on the new home on the next login because the landing page is chosen from the JWT.
+- A18. Optional env: `APP_URL` is the base for links in emails (falls back to `AUTH_URL`, then `http://localhost:3000`) and `EMAIL_FROM` the sender; with an empty `RESEND_API_KEY` every email is printed to the server console.
 
 ## Explicitly out of the MVP
 
