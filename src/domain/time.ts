@@ -54,6 +54,25 @@ export function gymToday(now: Date = new Date()): Date {
   return fromDateKey(dateKeyFor(now)) as Date;
 }
 
+/** A DATE-column value moved by whole calendar days. Exact because 00:00 UTC has no DST. */
+export function addCalendarDays(date: Date, days: number): Date {
+  return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+}
+
+/** ISO weekday (1 = Monday … 7 = Sunday) of a DATE-column value. */
+export function isoWeekdayOf(date: Date): number {
+  return ((date.getUTCDay() + 6) % 7) + 1;
+}
+
+/**
+ * The instant at gym-local `hours:minutes` on the calendar day of a DATE-column value. Built with
+ * `TZDate` so it never depends on the server's timezone.
+ */
+export function gymInstant(day: Date, hours: number, minutes: number, timeZone: string = GYM_TIMEZONE): Date {
+  const local = new TZDate(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), hours, minutes, timeZone);
+  return new Date(local.getTime());
+}
+
 /** Whole years between two DATE-column values. */
 export function ageOn(dateOfBirth: Date, on: Date): number {
   let years = on.getUTCFullYear() - dateOfBirth.getUTCFullYear();

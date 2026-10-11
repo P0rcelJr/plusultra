@@ -24,6 +24,11 @@ enum AuthTokenType {
   PASSWORD_RESET
 }
 
+enum SessionStatus {
+  SCHEDULED
+  CANCELLED
+}
+
 model User {
   id              String     @id @default(cuid())
   email           String     @unique
@@ -39,6 +44,9 @@ model User {
   profile       MemberProfile?
   subscriptions Subscription[]
   authTokens    AuthToken[]
+
+  coachedTemplates ScheduleTemplate[]
+  coachedSessions  ClassSession[]
 
   @@map("users")
 }
@@ -142,5 +150,57 @@ model ClassType {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
+  templates ScheduleTemplate[]
+  sessions  ClassSession[]
+
   @@map("class_types")
+}
+
+/// Weekly template rows (decision 8). `weekday` is ISO (1 = Monday … 7 = Sunday) and `startTime`
+/// is gym-local `HH:MM`; occurrences are expanded by `occurrencesFor` in src/domain/schedule.ts.
+/// `startsOn` / `endsOn` are DATE columns with the same half-open meaning as subscriptions (A21).
+model ScheduleTemplate {
+  id              String    @id @default(cuid())
+  classTypeId     String    @map("class_type_id")
+  weekday         Int
+  startTime       String    @map("start_time")
+  durationMinutes Int       @map("duration_minutes")
+  coachId         String    @map("coach_id")
+  capacity        Int
+  startsOn        DateTime  @map("starts_on") @db.Date
+  endsOn          DateTime? @map("ends_on") @db.Date
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  classType ClassType      @relation(fields: [classTypeId], references: [id])
+  coach     User           @relation(fields: [coachId], references: [id])
+  sessions  ClassSession[]
+
+  @@index([weekday, startTime])
+  @@map("schedule_templates")
+}
+
+/// A concrete class at an instant (decisions 8, A4). Rows from a template are materialized ahead
+/// of time by `materializeSessions` in src/lib/schedule.ts; the unique key on (template, start)
+/// makes that idempotent. A null template is a one-off session.
+model ClassSession {
+  id               String        @id @default(cuid())
+  templateId       String?       @map("template_id")
+  classTypeId      String        @map("class_type_id")
+  startsAt         DateTime      @map("starts_at")
+  endsAt           DateTime      @map("ends_at")
+  coachId          String        @map("coach_id")
+  capacity         Int
+  status           SessionStatus @default(SCHEDULED)
+  cancellationNote String?       @map("cancellation_note")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  template  ScheduleTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  classType ClassType         @relation(fields: [classTypeId], references: [id])
+  coach     User              @relation(fields: [coachId], references: [id])
+
+  @@unique([templateId, startsAt])
+  @@index([startsAt])
+  @@map("sessions")
 }
