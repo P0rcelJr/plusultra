@@ -79,7 +79,7 @@ export default async function MemberHomePage({ searchParams }: PageProps<"/membe
           {state === "intake_pending" ? (
             <div className="flex flex-col gap-3">
               <p className="text-sm text-muted-foreground">{t.member.intakePendingBody}</p>
-              <Button render={<Link href="/member/intake" />} size="sm" className="self-start">
+              <Button nativeButton={false} render={<Link href="/member/intake" />} size="sm" className="self-start">
                 {t.member.goToIntake}
               </Button>
             </div>

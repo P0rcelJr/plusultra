@@ -49,7 +49,7 @@ export default async function MembersPage({ searchParams }: PageProps<"/admin/me
           <h1 className="text-lg font-medium">{t.members.title}</h1>
           <p className="text-sm text-muted-foreground">{t.members.description}</p>
         </div>
-        <Button render={<Link href="/admin/members/new" />} size="sm">
+        <Button nativeButton={false} render={<Link href="/admin/members/new" />} size="sm">
           {t.members.new}
         </Button>
       </div>
@@ -90,7 +90,7 @@ export default async function MembersPage({ searchParams }: PageProps<"/admin/me
         <Button type="submit" variant="outline" size="sm">
           {t.members.filter}
         </Button>
-        <Button render={<Link href="/admin/members" />} variant="ghost" size="sm">
+        <Button nativeButton={false} render={<Link href="/admin/members" />} variant="ghost" size="sm">
           {t.members.clear}
         </Button>
       </form>
