@@ -1,0 +1,88 @@
+# Production on a single VPS (decision 16). Usage:
+#   docker compose -f compose.prod.yml --env-file .env.prod up -d --build
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-plusultra}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env.prod}
+      POSTGRES_DB: ${POSTGRES_DB:-plusultra}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-plusultra} -d ${POSTGRES_DB:-plusultra}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build:
+      context: .
+      target: migrate
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-plusultra}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-plusultra}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-plusultra}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-plusultra}
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET in .env.prod}
+      AUTH_TRUST_HOST: "true"
+      AUTH_URL: https://${DOMAIN}
+      UPLOADS_DIR: /app/uploads
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      TZ: America/Montevideo
+    volumes:
+      - uploads:/app/uploads
+    expose:
+      - "3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env.prod}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+  backup:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER:-plusultra}
+      POSTGRES_DB: ${POSTGRES_DB:-plusultra}
+    volumes:
+      - backups:/backups
+      - ./deploy/backup.sh:/backup.sh:ro
+    entrypoint: ["sh", "/backup.sh"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  uploads:
+  caddy_data:
+  caddy_config:
+  backups:

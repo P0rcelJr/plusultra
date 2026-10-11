@@ -1,0 +1,20 @@
+# Local development: only the database runs in Docker; `pnpm dev` runs on the host.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: plusultra
+      POSTGRES_PASSWORD: plusultra
+      POSTGRES_DB: plusultra
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata-dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plusultra -d plusultra"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata-dev:
