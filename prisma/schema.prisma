@@ -116,3 +116,15 @@ model Subscription {
   @@index([userId, startsOn])
   @@map("subscriptions")
 }
+
+/// Gym-wide booking and scheduling knobs (decisions 9, A4). A single row, created with the
+/// column defaults on first read by `getSettings()` in src/lib/settings.ts.
+model GymSettings {
+  id                      Int      @id @default(1)
+  bookingWindowDays       Int      @default(7) @map("booking_window_days")
+  cancelDeadlineHours     Int      @default(2) @map("cancel_deadline_hours")
+  materializeHorizonWeeks Int      @default(4) @map("materialize_horizon_weeks")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  @@map("gym_settings")
+}
