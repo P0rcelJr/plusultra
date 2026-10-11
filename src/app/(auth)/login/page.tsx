@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { AuthCard } from "@/components/auth-card";
+import { Notice } from "@/components/notice";
 import { t } from "@/i18n";
 import { safeRedirectTarget } from "@/lib/routes";
 import { LoginForm } from "./login-form";
@@ -11,16 +13,27 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const next = safeRedirectTarget(params.next, "");
 
   return (
-    <main className="flex flex-1 items-center justify-center p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>{t.app.name}</CardTitle>
-          <CardDescription>{t.auth.loginTitle}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <LoginForm next={next || undefined} />
-        </CardContent>
-      </Card>
-    </main>
+    <AuthCard
+      title={t.auth.loginTitle}
+      footer={
+        <>
+          <p>
+            {t.auth.noAccount}{" "}
+            <Link href="/signup" className="underline underline-offset-4">
+              {t.auth.signupLink}
+            </Link>
+          </p>
+          <Link href="/forgot" className="underline underline-offset-4">
+            {t.auth.forgotLink}
+          </Link>
+          <Link href="/verify/resend" className="underline underline-offset-4">
+            {t.auth.resendLink}
+          </Link>
+        </>
+      }
+    >
+      <Notice notice={params.notice} error={params.error} />
+      <LoginForm next={next || undefined} />
+    </AuthCard>
   );
 }

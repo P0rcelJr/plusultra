@@ -5,11 +5,14 @@ import { homeFor } from "@/lib/routes";
 
 const { auth } = NextAuth(authConfig);
 
-// Phase 1 adds /signup, /verify and /reset here.
-const PUBLIC_PATHS = ["/login"];
+// Reachable without a session.
+const PUBLIC_PATHS = ["/login", "/signup", "/verify", "/forgot", "/reset"];
+// Of those, the ones a signed-in user is bounced away from. Verification and reset links must
+// keep working even when a session cookie is around.
+const GUEST_ONLY_PATHS = ["/login", "/signup"];
 
-function isPublic(pathname: string) {
-  return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+function matches(paths: string[], pathname: string) {
+  return paths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
 export default auth((request) => {
@@ -17,16 +20,17 @@ export default auth((request) => {
   const user = request.auth?.user;
 
   if (!user) {
-    if (isPublic(pathname)) return NextResponse.next();
+    if (matches(PUBLIC_PATHS, pathname)) return NextResponse.next();
     const loginUrl = new URL("/login", request.nextUrl);
     if (pathname !== "/") loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isPublic(pathname)) {
+  if (matches(GUEST_ONLY_PATHS, pathname)) {
     return NextResponse.redirect(new URL(homeFor(user.role), request.nextUrl));
   }
 
+  // Role gating stays on the JWT here; pages re-check against the database (src/lib/session.ts).
   const adminOnly = pathname.startsWith("/admin");
   const staffOnly = pathname.startsWith("/coach");
   if (adminOnly && user.role !== "ADMIN") {
