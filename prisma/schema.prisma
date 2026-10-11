@@ -19,6 +19,11 @@ enum UserStatus {
   INACTIVE
 }
 
+enum AuthTokenType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
 model User {
   id              String     @id @default(cuid())
   email           String     @unique
@@ -31,5 +36,83 @@ model User {
   createdAt       DateTime   @default(now()) @map("created_at")
   updatedAt       DateTime   @updatedAt @map("updated_at")
 
+  profile       MemberProfile?
+  subscriptions Subscription[]
+  authTokens    AuthToken[]
+
   @@map("users")
+}
+
+/// Single-use links for email verification and password reset/set. Only the SHA-256
+/// hash of the token is stored; the raw token travels in the email link alone.
+model AuthToken {
+  id        String        @id @default(cuid())
+  userId    String        @map("user_id")
+  type      AuthTokenType
+  tokenHash String        @unique @map("token_hash")
+  expiresAt DateTime      @map("expires_at")
+  usedAt    DateTime?     @map("used_at")
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@map("auth_tokens")
+}
+
+/// Intake data collected after email verification (decisions 20, 21, A9).
+/// `healthQuestionnaire` holds the PAR-Q answers as JSON; see src/domain/parq.ts for its shape.
+model MemberProfile {
+  id                    String    @id @default(cuid())
+  userId                String    @unique @map("user_id")
+  dateOfBirth           DateTime? @map("date_of_birth") @db.Date
+  cedula                String?
+  emergencyContactName  String?   @map("emergency_contact_name")
+  emergencyContactPhone String?   @map("emergency_contact_phone")
+  goals                 String?
+  healthQuestionnaire   Json?     @map("health_questionnaire")
+  photoFilename         String?   @map("photo_filename")
+  staffNotes            String?   @map("staff_notes")
+  intakeCompletedAt     DateTime? @map("intake_completed_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("member_profiles")
+}
+
+/// Admin-defined plans (decision 4). Price is whole UYU (decision 18).
+/// `weeklyClassQuota` null means unlimited. Archived plans (`active` false) stay attached
+/// to existing subscriptions but cannot be assigned to new ones.
+model MembershipPlan {
+  id                   String   @id @default(cuid())
+  name                 String
+  monthlyPrice         Int      @map("monthly_price")
+  weeklyClassQuota     Int?     @map("weekly_class_quota")
+  includesTrainingPlan Boolean  @default(false) @map("includes_training_plan")
+  active               Boolean  @default(true)
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  subscriptions Subscription[]
+
+  @@map("membership_plans")
+}
+
+/// Dated membership rows (decision 19). The row covering a day is the one whose
+/// half-open [startsOn, endsOn) contains it; a gap between rows is a pause.
+model Subscription {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  planId    String    @map("plan_id")
+  startsOn  DateTime  @map("starts_on") @db.Date
+  endsOn    DateTime? @map("ends_on") @db.Date
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan MembershipPlan @relation(fields: [planId], references: [id])
+
+  @@index([userId, startsOn])
+  @@map("subscriptions")
 }
