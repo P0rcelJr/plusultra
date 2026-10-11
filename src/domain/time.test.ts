@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { ageOn, dateKeyFor, fromDateKey, gymToday, toDateKey, weekBoundsFor } from "./time";
+import {
+  addCalendarDays,
+  ageOn,
+  dateKeyFor,
+  fromDateKey,
+  gymInstant,
+  gymToday,
+  isoWeekdayOf,
+  toDateKey,
+  weekBoundsFor,
+} from "./time";
 
 describe("weekBoundsFor", () => {
   it("starts the week on Monday 00:00 in Montevideo, not in UTC", () => {
@@ -55,5 +65,22 @@ describe("ageOn", () => {
     expect(ageOn(dob, fromDateKey("2026-06-14") as Date)).toBe(25);
     expect(ageOn(dob, fromDateKey("2026-06-15") as Date)).toBe(26);
     expect(ageOn(dob, fromDateKey("2026-10-10") as Date)).toBe(26);
+  });
+});
+
+describe("addCalendarDays / isoWeekdayOf", () => {
+  it("moves DATE-column values by whole days and reads ISO weekdays", () => {
+    const sunday = fromDateKey("2026-10-11") as Date;
+    expect(isoWeekdayOf(sunday)).toBe(7);
+    expect(isoWeekdayOf(addCalendarDays(sunday, 1))).toBe(1);
+    expect(toDateKey(addCalendarDays(sunday, 28))).toBe("2026-11-08");
+  });
+});
+
+describe("gymInstant", () => {
+  it("resolves a local wall-clock time on a calendar day in the gym timezone", () => {
+    const day = fromDateKey("2026-10-12") as Date;
+    expect(gymInstant(day, 19, 0).toISOString()).toBe("2026-10-12T22:00:00.000Z");
+    expect(gymInstant(day, 0, 0).toISOString()).toBe("2026-10-12T03:00:00.000Z");
   });
 });

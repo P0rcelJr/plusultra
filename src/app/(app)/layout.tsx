@@ -12,6 +12,8 @@ const NAV = {
     { href: "/admin/members", label: t.nav.members },
     { href: "/admin/plans", label: t.nav.plans },
     { href: "/admin/classes", label: t.nav.classes },
+    { href: "/admin/schedule", label: t.nav.schedule },
+    { href: "/admin/schedule/templates", label: t.nav.templates },
     { href: "/admin/settings", label: t.nav.settings },
   ],
   COACH: [{ href: "/coach", label: t.nav.home }],
@@ -36,7 +38,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           <span className="font-semibold">{t.app.name}</span>
           <Badge variant="secondary">{t.roles[session.user.role]}</Badge>
         </div>
-        <nav className="order-last flex w-full gap-4 text-sm sm:order-none sm:w-auto">
+        <nav className="order-last flex w-full flex-wrap gap-x-4 gap-y-1 text-sm sm:order-none sm:w-auto">
           {NAV[session.user.role].map((item) => (
             <Link key={item.href} href={item.href} className="text-muted-foreground hover:text-foreground">
               {item.label}
