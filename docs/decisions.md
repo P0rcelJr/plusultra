@@ -78,6 +78,7 @@ Stated during planning and not objected to. Reopen any of them by editing this f
 - A16. The member list shows every account, including coaches and admins, because promotions and demotions happen from the detail page. An admin cannot change their own role or deactivate themselves. Coaches have no CRM screens in phase 1; the photo route already admits them for the phase 3 roster.
 - A17. Pages and server actions check role and status against the database row (`currentUser` / `requireRole` in `src/lib/session.ts`); the proxy keeps the cheap JWT check for routing only. A role change still lands on the new home on the next login because the landing page is chosen from the JWT.
 - A18. Optional env: `APP_URL` is the base for links in emails (falls back to `AUTH_URL`, then `http://localhost:3000`) and `EMAIL_FROM` the sender; with an empty `RESEND_API_KEY` every email is printed to the server console.
+- A19. Gym settings live in one `gym_settings` row (fixed id 1) that `getSettings()` creates with the defaults on first read. Admin input is bounded: booking window 1 to 60 days, cancel deadline 0 to 72 hours, horizon 1 to 12 weeks, and the booking window may not exceed the horizon (`windowFitsHorizon` in `src/domain/settings.ts`), because members can only book sessions that already exist.
 
 ## Explicitly out of the MVP
 

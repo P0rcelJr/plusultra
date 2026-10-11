@@ -22,6 +22,7 @@ export const es = {
     approvals: "Aprobaciones",
     members: "Socios",
     plans: "Planes",
+    settings: "Ajustes",
     myAccount: "Mi cuenta",
     myProfile: "Mi ficha",
   },
@@ -180,6 +181,25 @@ export const es = {
     perMonth: "/ mes",
     classesPerWeek: "{n} clases por semana",
   },
+  settings: {
+    title: "Ajustes del gimnasio",
+    description: "Reglas de reserva y cuánto se genera la agenda por adelantado.",
+    fields: {
+      bookingWindowDays: {
+        label: "Ventana de reserva (días)",
+        hint: "Los socios pueden reservar clases que empiezan dentro de esta cantidad de días.",
+      },
+      cancelDeadlineHours: {
+        label: "Plazo de cancelación (horas)",
+        hint: "Cancelar con menos anticipación libera el lugar, pero la clase igual cuenta en el cupo semanal.",
+      },
+      materializeHorizonWeeks: {
+        label: "Agenda generada (semanas)",
+        hint: "Cuántas semanas hacia adelante se crean las clases a partir de la plantilla.",
+      },
+    },
+    windowPastHorizon: "La ventana de reserva no puede superar las semanas de agenda generada.",
+  },
   approvals: {
     title: "Aprobaciones pendientes",
     description: "Socios que verificaron su email y completaron la ficha.",
@@ -259,6 +279,7 @@ export const es = {
     planSaved: "Plan guardado.",
     planArchived: "Plan archivado.",
     planRestored: "Plan restaurado.",
+    settingsSaved: "Ajustes guardados.",
     approved: "Socio aprobado. Le enviamos un email.",
     rejected: "Socio rechazado.",
     memberCreated: "Socio creado. Le enviamos un email para crear su contraseña.",
@@ -291,6 +312,7 @@ export const es = {
     invalid: "Revisá los datos ingresados.",
     price: "Ingresá un precio en pesos, sin decimales.",
     quota: "Ingresá un número de clases o dejá vacío.",
+    intRange: "Ingresá un número entero entre {min} y {max}.",
     parq: "Respondé todas las preguntas del cuestionario.",
   },
   email: {
