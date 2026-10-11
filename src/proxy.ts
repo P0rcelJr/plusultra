@@ -5,8 +5,8 @@ import { homeFor } from "@/lib/routes";
 
 const { auth } = NextAuth(authConfig);
 
-// Reachable without a session.
-const PUBLIC_PATHS = ["/login", "/signup", "/verify", "/forgot", "/reset"];
+// Reachable without a session. Job routes check their own `JOB_SECRET` header instead.
+const PUBLIC_PATHS = ["/login", "/signup", "/verify", "/forgot", "/reset", "/api/jobs"];
 // Of those, the ones a signed-in user is bounced away from. Verification and reset links must
 // keep working even when a session cookie is around.
 const GUEST_ONLY_PATHS = ["/login", "/signup"];

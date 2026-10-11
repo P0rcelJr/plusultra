@@ -63,7 +63,7 @@ Stated during planning and not objected to. Reopen any of them by editing this f
 - A1. Pending members can log in and view the schedule but cannot book (no plan means quota zero).
 - A2. Admin can create members directly as well as approve self-signups.
 - A3. Infra: Caddy for TLS, Postgres on a named volume, uploads on a disk volume, nightly `pg_dump` kept 14 days. Copying backups off the VPS is still pending.
-- A4. Sessions are materialized on template save and topped up by a daily job to a 4-week horizon (gym setting).
+- A4. Sessions are materialized on template save and topped up by a daily job to a 4-week horizon (gym setting). The job is `pnpm schedule:materialize` or `POST /api/jobs/materialize` with an `x-job-secret` header equal to `JOB_SECRET`; with `JOB_SECRET` unset the route always answers 401, so a forgotten env var leaves it closed. The scheduler itself is chosen with the deploy.
 - A5. The first admin comes from `pnpm db:seed` using `ADMIN_EMAIL` and `ADMIN_PASSWORD`. Admins promote users to coach or admin from the member list.
 - A6. Plan rich text uses a minimal editor. PDFs capped at 10 MB, photos at 5 MB.
 - A7. Attendance statuses are present and absent only. A walk-in is a staff-created booking marked present.
