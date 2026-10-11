@@ -110,14 +110,12 @@ export default async function MemberDetailPage({ params, searchParams }: PagePro
               </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="planId">{t.members.plan}</Label>
-                <NativeSelect className="w-full">
-                  <select id="planId" name="planId" required disabled={plans.length === 0}>
-                    {plans.map((plan) => (
-                      <NativeSelectOption key={plan.id} value={plan.id}>
-                        {plan.name} · {formatMoney(plan.monthlyPrice)}
-                      </NativeSelectOption>
-                    ))}
-                  </select>
+                <NativeSelect className="w-full" id="planId" name="planId" required disabled={plans.length === 0}>
+                  {plans.map((plan) => (
+                    <NativeSelectOption key={plan.id} value={plan.id}>
+                      {plan.name} · {formatMoney(plan.monthlyPrice)}
+                    </NativeSelectOption>
+                  ))}
                 </NativeSelect>
               </div>
               <div className="flex flex-col gap-2">
@@ -183,14 +181,12 @@ export default async function MemberDetailPage({ params, searchParams }: PagePro
             <input type="hidden" name="userId" value={member.id} />
             <Label htmlFor="role">{t.memberDetail.changeRole}</Label>
             <div className="flex gap-2">
-              <NativeSelect>
-                <select id="role" name="role" defaultValue={member.role} disabled={isSelf}>
-                  {ROLES.map((role) => (
-                    <NativeSelectOption key={role} value={role}>
-                      {t.roles[role]}
-                    </NativeSelectOption>
-                  ))}
-                </select>
+              <NativeSelect id="role" name="role" defaultValue={member.role} disabled={isSelf}>
+                {ROLES.map((role) => (
+                  <NativeSelectOption key={role} value={role}>
+                    {t.roles[role]}
+                  </NativeSelectOption>
+                ))}
               </NativeSelect>
               <Button type="submit" variant="outline" size="sm" disabled={isSelf}>
                 {t.common.save}
