@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { fill, t } from "@/i18n";
 import { db } from "@/lib/db";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateTime } from "@/lib/format";
 import { currentUser } from "@/lib/session";
 import { resendMyVerification } from "./actions";
 
@@ -23,7 +23,7 @@ const STATE_BADGE = {
   inactive: "destructive",
 } as const;
 
-/** Member home: status (from the database row, not the JWT) and current plan. Schedule arrives in phase 2. */
+/** Member home: status (from the database row, not the JWT), current plan and upcoming bookings. */
 export default async function MemberHomePage({ searchParams }: PageProps<"/member">) {
   const params = await searchParams;
   const user = await currentUser();
@@ -34,6 +34,16 @@ export default async function MemberHomePage({ searchParams }: PageProps<"/membe
     include: { plan: true },
   });
   const current = subscriptionCovering(subscriptions, gymToday());
+
+  const upcoming = await db.booking.findMany({
+    where: { memberId: user.id, status: "BOOKED", session: { startsAt: { gt: new Date() } } },
+    include: {
+      session: { select: { startsAt: true, classType: { select: { name: true } }, coach: { select: { name: true } } } },
+    },
+    orderBy: { session: { startsAt: "asc" } },
+  });
+  // Pending and inactive members can browse the schedule too (A1); only an unfinished signup cannot.
+  const showSchedule = state !== "unverified" && state !== "intake_pending";
 
   return (
     <div className="flex max-w-lg flex-col gap-4">
@@ -98,6 +108,34 @@ export default async function MemberHomePage({ searchParams }: PageProps<"/membe
           ) : null}
         </CardContent>
       </Card>
+
+      {showSchedule ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t.member.upcomingTitle}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            {upcoming.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t.member.noUpcoming}</p>
+            ) : (
+              <ul className="flex flex-col gap-2 text-sm">
+                {upcoming.map((booking) => (
+                  <li key={booking.id} className="flex flex-col">
+                    <span>
+                      <span className="font-medium">{formatDateTime(booking.session.startsAt)}</span>{" "}
+                      {booking.session.classType.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{booking.session.coach.name}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Button nativeButton={false} render={<Link href="/member/schedule" />} size="sm" className="self-start">
+              {t.member.scheduleLink}
+            </Button>
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }
