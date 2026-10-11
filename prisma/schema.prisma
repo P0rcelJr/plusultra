@@ -128,3 +128,19 @@ model GymSettings {
 
   @@map("gym_settings")
 }
+
+/// Kinds of group class (decision 2), with defaults copied onto new templates and sessions.
+/// Archived types (`active` false) stay on existing templates and sessions but cannot be
+/// picked for new ones.
+model ClassType {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  durationMinutes Int      @map("duration_minutes")
+  capacity        Int
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("class_types")
+}

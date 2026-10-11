@@ -79,6 +79,7 @@ Stated during planning and not objected to. Reopen any of them by editing this f
 - A17. Pages and server actions check role and status against the database row (`currentUser` / `requireRole` in `src/lib/session.ts`); the proxy keeps the cheap JWT check for routing only. A role change still lands on the new home on the next login because the landing page is chosen from the JWT.
 - A18. Optional env: `APP_URL` is the base for links in emails (falls back to `AUTH_URL`, then `http://localhost:3000`) and `EMAIL_FROM` the sender; with an empty `RESEND_API_KEY` every email is printed to the server console.
 - A19. Gym settings live in one `gym_settings` row (fixed id 1) that `getSettings()` creates with the defaults on first read. Admin input is bounded: booking window 1 to 60 days, cancel deadline 0 to 72 hours, horizon 1 to 12 weeks, and the booking window may not exceed the horizon (`windowFitsHorizon` in `src/domain/settings.ts`), because members can only book sessions that already exist.
+- A20. Class types carry a default duration (15 to 240 minutes) and capacity (1 to 100) that prefill templates and one-off sessions; the template or session keeps its own copy, so editing a type does not change existing ones. Archiving works like plans: the type stays named on existing templates and sessions but is left out of the pickers for new ones. Names are not unique; staff tell types apart by name and description.
 
 ## Explicitly out of the MVP
 

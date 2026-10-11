@@ -4,16 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { SETTINGS_LIMITS, windowFitsHorizon } from "@/domain/settings";
-import { fill, t } from "@/i18n";
+import { t } from "@/i18n";
 import type { ActionState } from "@/lib/action-state";
 import { requireRole } from "@/lib/session";
 import { saveSettings } from "@/lib/settings";
-import { firstIssue, formValues } from "@/lib/validation";
-
-function boundedInt({ min, max }: { min: number; max: number }) {
-  const error = fill(t.validation.intRange, { min, max });
-  return z.coerce.number({ error }).int({ error }).min(min, { error }).max(max, { error });
-}
+import { boundedInt, firstIssue, formValues } from "@/lib/validation";
 
 const settingsSchema = z
   .object({
