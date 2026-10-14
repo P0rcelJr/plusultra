@@ -44,3 +44,11 @@ To create the first admin in production:
 docker compose -f compose.prod.yml --env-file .env.prod run --rm \
   -e ADMIN_EMAIL=you@example.com -e ADMIN_PASSWORD='choose-one' migrate pnpm db:seed
 ```
+
+To top up the session horizon by hand (the `app` image has no pnpm or scripts, so it runs in `migrate`):
+
+```bash
+docker compose -f compose.prod.yml --env-file .env.prod run --rm migrate pnpm schedule:materialize
+```
+
+A scheduler can instead `POST https://DOMAIN/api/jobs/materialize` with the `x-job-secret` header; set `JOB_SECRET` in `.env.prod` first, or the route answers 401.
