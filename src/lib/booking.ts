@@ -1,4 +1,4 @@
-import { canBook, type CanBookResult } from "@/domain/booking";
+import { canBook, cancellationStatus, type CanBookResult } from "@/domain/booking";
 import { subscriptionCovering } from "@/domain/subscriptions";
 import { gymToday } from "@/domain/time";
 import type { UserStatus } from "@/generated/prisma/client";
@@ -42,4 +42,31 @@ export async function bookSession(
     await tx.booking.create({ data: { sessionId, memberId: member.id, bookedById: member.id } });
     return result;
   });
+}
+
+export type CancelRefusal = "not_found" | "not_booked" | "started";
+export type CancelResult = { ok: true; status: "CANCELLED" | "LATE_CANCELLED" } | { ok: false; reason: CancelRefusal };
+
+/**
+ * A member cancels their own booking (decision 9). Before the deadline it becomes `CANCELLED`, at or
+ * after it `LATE_CANCELLED`; either way the seat is freed because capacity counts only `BOOKED` rows.
+ * A session that already started cannot be cancelled (A24). The update is conditional on the row
+ * still being `BOOKED`, so a double submit or a staff cancel in between is refused instead of
+ * overwriting the status or `cancelled_at`.
+ */
+export async function cancelBooking(memberId: string, bookingId: string, now: Date = new Date()): Promise<CancelResult> {
+  const booking = await db.booking.findFirst({
+    where: { id: bookingId, memberId },
+    select: { status: true, session: { select: { startsAt: true } } },
+  });
+  if (!booking) return { ok: false, reason: "not_found" };
+  if (booking.status !== "BOOKED") return { ok: false, reason: "not_booked" };
+  if (booking.session.startsAt.getTime() <= now.getTime()) return { ok: false, reason: "started" };
+
+  const status = cancellationStatus(booking.session, now, await getSettings());
+  const { count } = await db.booking.updateMany({
+    where: { id: bookingId, memberId, status: "BOOKED" },
+    data: { status, cancelledAt: now },
+  });
+  return count === 0 ? { ok: false, reason: "not_booked" } : { ok: true, status };
 }
