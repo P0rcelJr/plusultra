@@ -143,6 +143,11 @@ export const es = {
       outside_window: "Fuera de plazo",
       full: "Sin lugar",
     },
+    cancel: "Cancelar reserva",
+    cancelBefore: "Cancelá antes de las {time} para no perder la clase.",
+    cancelBeforeOn: "Cancelá antes del {date} para no perder la clase.",
+    cancelLate: "Ya pasó el plazo de cancelación: si cancelás, la clase cuenta igual en tu cupo semanal.",
+    cancelLateConfirm: "Ya pasó el plazo de cancelación. Si cancelás, liberás el lugar pero la clase cuenta igual en tu cupo semanal. ¿Cancelar de todos modos?",
   },
   intake: {
     title: "Ficha de ingreso",
@@ -384,6 +389,8 @@ export const es = {
     passwordLinkSent: "Enlace enviado.",
     resent: "Te enviamos un enlace nuevo.",
     booked: "Clase reservada.",
+    cancelled: "Reserva cancelada. El lugar quedó libre y la clase no cuenta en tu cupo.",
+    lateCancelled: "Reserva cancelada fuera de plazo. El lugar quedó libre, pero la clase cuenta en tu cupo semanal.",
   },
   errors: {
     generic: "Algo salió mal. Intentá de nuevo.",
@@ -404,6 +411,8 @@ export const es = {
     bookingAlreadyBooked: "Ya tenés reservada esa clase.",
     bookingOutsideWindow: "Esa clase está fuera del plazo de reserva.",
     bookingFull: "Esa clase ya no tiene lugar.",
+    bookingNotActive: "Esa reserva ya estaba cancelada.",
+    bookingStarted: "La clase ya empezó; no se puede cancelar.",
   },
   validation: {
     required: "Completá este campo.",

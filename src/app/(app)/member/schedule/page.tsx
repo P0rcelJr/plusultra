@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CancelBooking } from "@/components/cancel-booking";
 import { Notice } from "@/components/notice";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -84,40 +85,52 @@ export default async function MemberSchedulePage({ searchParams }: PageProps<"/m
                   now,
                   settings,
                 });
+                const own = session.bookings[0];
                 return (
-                  <div key={session.id} className="flex items-center justify-between gap-3 rounded-lg border p-3">
-                    <div className="flex flex-col gap-0.5 text-sm">
-                      <span>
-                        <span className="font-medium">{formatTime(session.startsAt)}</span>{" "}
-                        <span className={session.status === "CANCELLED" ? "line-through" : ""}>
-                          {session.classType.name}
+                  <div key={session.id} className="flex flex-col gap-3 rounded-lg border p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex flex-col gap-0.5 text-sm">
+                        <span>
+                          <span className="font-medium">{formatTime(session.startsAt)}</span>{" "}
+                          <span className={session.status === "CANCELLED" ? "line-through" : ""}>
+                            {session.classType.name}
+                          </span>
                         </span>
-                      </span>
-                      <span className="text-xs text-muted-foreground">{session.coach.name}</span>
-                      {session.status === "SCHEDULED" ? (
-                        <span className="text-xs text-muted-foreground">
-                          {fill(t.memberSchedule.spots, {
-                            left: Math.max(session.capacity - bookedCount, 0),
-                            capacity: session.capacity,
-                          })}
-                        </span>
-                      ) : null}
+                        <span className="text-xs text-muted-foreground">{session.coach.name}</span>
+                        {session.status === "SCHEDULED" ? (
+                          <span className="text-xs text-muted-foreground">
+                            {fill(t.memberSchedule.spots, {
+                              left: Math.max(session.capacity - bookedCount, 0),
+                              capacity: session.capacity,
+                            })}
+                          </span>
+                        ) : null}
+                      </div>
+                      {result.ok ? (
+                        <form action={bookMySession}>
+                          <input type="hidden" name="sessionId" value={session.id} />
+                          <Button type="submit" size="sm">
+                            {t.memberSchedule.book}
+                          </Button>
+                        </form>
+                      ) : (
+                        <Badge
+                          variant={result.reason === "already_booked" ? "default" : "outline"}
+                          className="shrink-0"
+                        >
+                          {t.memberSchedule.reasons[result.reason]}
+                        </Badge>
+                      )}
                     </div>
-                    {result.ok ? (
-                      <form action={bookMySession}>
-                        <input type="hidden" name="sessionId" value={session.id} />
-                        <Button type="submit" size="sm">
-                          {t.memberSchedule.book}
-                        </Button>
-                      </form>
-                    ) : (
-                      <Badge
-                        variant={result.reason === "already_booked" ? "default" : "outline"}
-                        className="shrink-0"
-                      >
-                        {t.memberSchedule.reasons[result.reason]}
-                      </Badge>
-                    )}
+                    {own ? (
+                      <CancelBooking
+                        bookingId={own.id}
+                        session={session}
+                        now={now}
+                        settings={settings}
+                        returnTo="/member/schedule"
+                      />
+                    ) : null}
                   </div>
                 );
               })

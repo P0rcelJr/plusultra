@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canBook, withinBookingWindow, type CanBookInput } from "./booking";
+import { canBook, cancelDeadline, cancellationStatus, withinBookingWindow, type CanBookInput } from "./booking";
 
 const now = new Date("2026-10-12T12:00:00.000Z");
 const settings = { bookingWindowDays: 7 };
@@ -70,5 +70,30 @@ describe("canBook", () => {
 
   it("treats the quota as unlimited for now", () => {
     expect(canBook({ ...base, plan: { weeklyClassQuota: 0 } })).toEqual({ ok: true });
+  });
+});
+
+describe("cancellationStatus", () => {
+  const session = { startsAt: hours(5) };
+  const deadline = { cancelDeadlineHours: 2 };
+  const fromDeadline = (ms: number) => new Date(hours(3).getTime() + ms);
+
+  it("puts the deadline cancelDeadlineHours before the start", () => {
+    expect(cancelDeadline(session, deadline)).toEqual(hours(3));
+  });
+
+  it("is a free cancel up to the millisecond before the deadline", () => {
+    expect(cancellationStatus(session, now, deadline)).toBe("CANCELLED");
+    expect(cancellationStatus(session, fromDeadline(-1), deadline)).toBe("CANCELLED");
+  });
+
+  it("is late at the exact deadline instant and after it", () => {
+    expect(cancellationStatus(session, fromDeadline(0), deadline)).toBe("LATE_CANCELLED");
+    expect(cancellationStatus(session, fromDeadline(1), deadline)).toBe("LATE_CANCELLED");
+  });
+
+  it("turns late when the deadline is raised past now", () => {
+    expect(cancellationStatus(session, now, { cancelDeadlineHours: 4 })).toBe("CANCELLED");
+    expect(cancellationStatus(session, now, { cancelDeadlineHours: 5 })).toBe("LATE_CANCELLED");
   });
 });

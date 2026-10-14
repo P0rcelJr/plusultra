@@ -3,6 +3,7 @@ import Link from "next/link";
 import { accountState } from "@/domain/account";
 import { subscriptionCovering } from "@/domain/subscriptions";
 import { gymToday } from "@/domain/time";
+import { CancelBooking } from "@/components/cancel-booking";
 import { Notice } from "@/components/notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { fill, t } from "@/i18n";
 import { db } from "@/lib/db";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { currentUser } from "@/lib/session";
+import { getSettings } from "@/lib/settings";
 import { resendMyVerification } from "./actions";
 
 export const metadata: Metadata = { title: t.home.member };
@@ -33,10 +35,12 @@ export default async function MemberHomePage({ searchParams }: PageProps<"/membe
     where: { userId: user.id },
     include: { plan: true },
   });
-  const current = subscriptionCovering(subscriptions, gymToday());
+  const now = new Date();
+  const current = subscriptionCovering(subscriptions, gymToday(now));
 
+  const settings = await getSettings();
   const upcoming = await db.booking.findMany({
-    where: { memberId: user.id, status: "BOOKED", session: { startsAt: { gt: new Date() } } },
+    where: { memberId: user.id, status: "BOOKED", session: { startsAt: { gt: now } } },
     include: {
       session: { select: { startsAt: true, classType: { select: { name: true } }, coach: { select: { name: true } } } },
     },
@@ -118,14 +122,23 @@ export default async function MemberHomePage({ searchParams }: PageProps<"/membe
             {upcoming.length === 0 ? (
               <p className="text-sm text-muted-foreground">{t.member.noUpcoming}</p>
             ) : (
-              <ul className="flex flex-col gap-2 text-sm">
+              <ul className="flex flex-col gap-3 text-sm">
                 {upcoming.map((booking) => (
-                  <li key={booking.id} className="flex flex-col">
-                    <span>
-                      <span className="font-medium">{formatDateTime(booking.session.startsAt)}</span>{" "}
-                      {booking.session.classType.name}
-                    </span>
-                    <span className="text-xs text-muted-foreground">{booking.session.coach.name}</span>
+                  <li key={booking.id} className="flex flex-col gap-2">
+                    <div className="flex flex-col">
+                      <span>
+                        <span className="font-medium">{formatDateTime(booking.session.startsAt)}</span>{" "}
+                        {booking.session.classType.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{booking.session.coach.name}</span>
+                    </div>
+                    <CancelBooking
+                      bookingId={booking.id}
+                      session={booking.session}
+                      now={now}
+                      settings={settings}
+                      returnTo="/member"
+                    />
                   </li>
                 ))}
               </ul>

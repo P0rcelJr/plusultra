@@ -1,6 +1,7 @@
-import type { SessionStatus, UserStatus } from "@/generated/prisma/client";
+import type { BookingStatus, SessionStatus, UserStatus } from "@/generated/prisma/client";
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
 export type BookingWindowSettings = { bookingWindowDays: number };
 
@@ -56,4 +57,24 @@ export function canBook(input: CanBookInput): CanBookResult {
   if (!withinBookingWindow(session, input.now, input.settings)) return { ok: false, reason: "outside_window" };
   if (input.bookedCount >= session.capacity) return { ok: false, reason: "full" };
   return { ok: true };
+}
+
+export type CancelDeadlineSettings = { cancelDeadlineHours: number };
+
+/** The instant `cancelDeadlineHours` before the session starts; cancelling from it on is late (decision 9). */
+export function cancelDeadline(session: { startsAt: Date }, settings: CancelDeadlineSettings): Date {
+  return new Date(session.startsAt.getTime() - settings.cancelDeadlineHours * HOUR_MS);
+}
+
+/**
+ * The status a cancelled booking takes (decision 9): `CANCELLED` strictly before the deadline and
+ * `LATE_CANCELLED` at or after it. Both free the seat, since capacity counts only `BOOKED` rows;
+ * only the late one still counts against the weekly quota.
+ */
+export function cancellationStatus(
+  session: { startsAt: Date },
+  now: Date,
+  settings: CancelDeadlineSettings,
+): Extract<BookingStatus, "CANCELLED" | "LATE_CANCELLED"> {
+  return now.getTime() < cancelDeadline(session, settings).getTime() ? "CANCELLED" : "LATE_CANCELLED";
 }
