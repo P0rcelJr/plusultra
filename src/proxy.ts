@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
+import { JOB_SECRET_HEADER, jobSecretMatches } from "@/domain/jobs";
 import { authConfig } from "@/lib/auth.config";
 import { homeFor } from "@/lib/routes";
 
@@ -7,6 +8,8 @@ const { auth } = NextAuth(authConfig);
 
 // Reachable without a session.
 const PUBLIC_PATHS = ["/login", "/signup", "/verify", "/forgot", "/reset"];
+// Called by a scheduler, not a browser: gated on the `JOB_SECRET` header instead of a session (A4).
+const JOB_PATHS = ["/api/jobs"];
 // Of those, the ones a signed-in user is bounced away from. Verification and reset links must
 // keep working even when a session cookie is around.
 const GUEST_ONLY_PATHS = ["/login", "/signup"];
@@ -18,6 +21,13 @@ function matches(paths: string[], pathname: string) {
 export default auth((request) => {
   const { pathname } = request.nextUrl;
   const user = request.auth?.user;
+
+  // Checked here once so every job route is closed by default; handlers re-check as well.
+  if (matches(JOB_PATHS, pathname)) {
+    return jobSecretMatches(request.headers.get(JOB_SECRET_HEADER), process.env.JOB_SECRET)
+      ? NextResponse.next()
+      : new NextResponse(null, { status: 401 });
+  }
 
   if (!user) {
     if (matches(PUBLIC_PATHS, pathname)) return NextResponse.next();

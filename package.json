@@ -15,7 +15,8 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "schedule:materialize": "tsx scripts/materialize.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
